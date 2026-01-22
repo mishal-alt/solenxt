@@ -1,12 +1,13 @@
-const express = require('express')
-const cors = require('cors')
-const dotenv = require('dotenv')
-const connectDB = require('./config/db');
-const productRoutes = require("./routes/productroutes");
-const userRoutes = require("./routes/userroutes");
-const authRoutes = require("./routes/authroutes");
-const adminRoutes = require("./routes/adminRoutes");
-const errorHandler = require("./middleware/errorHandler");
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import connectDB from './config/db.js';
+import productRoutes from "./routes/productroutes.js";
+import userRoutes from "./routes/userroutes.js";
+import authRoutes from "./routes/authroutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import errorHandler from "./middleware/errorHandler.js";
+
 dotenv.config();
 const app = express();
 

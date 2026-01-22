@@ -1,7 +1,10 @@
-const express = require("express");
+import express from "express";
+import { getUsers, getUserById, createUser, updateUser, addOrder, getOrders } from "../controllers/usercontroller.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
+import validate from "../middleware/validate.js";
+import { registerSchema, updateUserSchema, orderSchema } from "../validation/userValidation.js";
+
 const router = express.Router();
-const { getUsers, getUserById, createUser, updateUser, addOrder, getOrders } = require("../controllers/usercontroller");
-const { protect, admin } = require("../middleware/authMiddleware");
 
 // GET /users
 router.get("/", protect, admin, getUsers);
@@ -10,15 +13,16 @@ router.get("/", protect, admin, getUsers);
 router.get("/:id", protect, getUserById);
 
 // POST /users
-router.post("/", createUser); 
+router.post("/", validate(registerSchema), createUser);
+
 // PATCH /users/:id
-router.patch("/:id", protect, updateUser);
+router.patch("/:id", protect, validate(updateUserSchema), updateUser);
 
 // GET /users/:id/orders
 router.get("/:id/orders", protect, getOrders);
 
 // POST /users/:id/orders
-router.post("/:id/orders", protect, addOrder);
+router.post("/:id/orders", protect, validate(orderSchema), addOrder);
 
-module.exports = router;
 
+export default router;

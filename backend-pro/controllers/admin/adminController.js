@@ -1,6 +1,6 @@
-const User = require("../../models/user");
-const Product = require("../../models/products");
-const asyncHandler = require("../../middleware/asyncHandler");
+import User from "../../models/user.js";
+import Product from "../../models/products.js";
+import asyncHandler from "../../middleware/asyncHandler.js";
 
 // @desc    Get dashboard stats
 // @route   GET /admin/dashboard
@@ -95,7 +95,7 @@ const deleteUser = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = {
+export {
     getDashboardStats,
     getAllUsers,
     toggleBlockUser,

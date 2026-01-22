@@ -1,9 +1,8 @@
-const User = require("../models/user");
-const Product = require("../models/products");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const asyncHandler = require("../middleware/asyncHandler");
-
+import User from "../models/user.js";
+import Product from "../models/products.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import asyncHandler from "../middleware/asyncHandler.js";
 
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find();
@@ -22,9 +21,6 @@ const getUsers = asyncHandler(async (req, res) => {
 
   res.json(formattedUsers);
 });
-
-
-
 
 const createUser = asyncHandler(async (req, res) => {
   const { fullName, email, password, isAdmin, isBlock } = req.body;
@@ -82,9 +78,6 @@ const createUser = asyncHandler(async (req, res) => {
   });
 });
 
-
-
-
 const updateUser = asyncHandler(async (req, res) => {
   const userId = req.params.id;
   console.log("Updating user:", userId);
@@ -116,8 +109,6 @@ const updateUser = asyncHandler(async (req, res) => {
   });
 });
 
-
-
 const getUserById = asyncHandler(async (req, res) => {
   const userId = req.params.id;
   console.log("Fetching user by ID:", userId);
@@ -140,9 +131,6 @@ const getUserById = asyncHandler(async (req, res) => {
     orders: user.orders || [],
   });
 });
-
-
-
 
 const addOrder = asyncHandler(async (req, res) => {
   const userId = req.params.id;
@@ -185,9 +173,6 @@ const addOrder = asyncHandler(async (req, res) => {
   res.json(newOrder);
 });
 
-
-
-
 const getOrders = asyncHandler(async (req, res) => {
   const userId = req.params.id;
 
@@ -209,8 +194,7 @@ const inbock = async (req, res) => {
   res
 }
 
-
-module.exports = {
+export {
   getUsers,
   getUserById,
   createUser,

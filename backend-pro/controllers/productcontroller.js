@@ -1,6 +1,5 @@
-const Product = require("../models/products");
-const asyncHandler = require("../middleware/asyncHandler");
-
+import Product from "../models/products.js";
+import asyncHandler from "../middleware/asyncHandler.js";
 
 const getProducts = asyncHandler(async (req, res) => {
     const keyword = req.query.keyword
@@ -14,7 +13,6 @@ const getProducts = asyncHandler(async (req, res) => {
 
     const products = await Product.find({ ...keyword });
 
-
     const formattedProducts = products.map((p) => ({
         id: p._id.toString(),
         name: p.name,
@@ -27,8 +25,6 @@ const getProducts = asyncHandler(async (req, res) => {
 
     res.json(formattedProducts);
 });
-
-
 
 const getProductById = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
@@ -85,4 +81,4 @@ const deleteProduct = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { getProducts, getProductById, createProduct, updateProduct, deleteProduct };
+export { getProducts, getProductById, createProduct, updateProduct, deleteProduct };

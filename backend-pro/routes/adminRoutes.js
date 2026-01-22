@@ -1,12 +1,13 @@
-const express = require("express");
-const router = express.Router();
-const {
+import express from "express";
+import {
     getDashboardStats,
     getAllUsers,
     toggleBlockUser,
     deleteUser,
-} = require("../controllers/admin/adminController");
-const { protect, admin } = require("../middleware/authMiddleware");
+} from "../controllers/admin/adminController.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
+
+const router = express.Router();
 
 // All routes here are protected and require admin privileges
 router.use(protect);
@@ -17,4 +18,4 @@ router.get("/users", getAllUsers);
 router.patch("/users/:id/block", toggleBlockUser);
 router.delete("/users/:id", deleteUser);
 
-module.exports = router;
+export default router;
