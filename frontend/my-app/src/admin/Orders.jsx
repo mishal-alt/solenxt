@@ -69,7 +69,7 @@ const Orders = () => {
             }
 
             productUpdates.push(
-                axiosInstance.patch(`/products/${item.id}`, { stoke: newStock.toString() })
+                axiosInstance.patch(`/products/${item.id}`, { stoke: newStock })
             );
         }
         await Promise.all(productUpdates);
@@ -87,7 +87,7 @@ const Orders = () => {
             const newStock = currentStock + item.quantity;
 
             productUpdates.push(
-                axiosInstance.patch(`/products/${item.id}`, { stoke: newStock.toString() })
+                axiosInstance.patch(`/products/${item.id}`, { stoke: newStock })
             );
         }
         await Promise.all(productUpdates);
@@ -130,9 +130,8 @@ const Orders = () => {
                 order.id === orderId ? { ...order, status: newStatus } : order
             );
             const updatedUser = { ...userToUpdate, orders: updatedUserOrders };
-
-            // 3. Update the user on the server
-            await axiosInstance.patch(`/users/${userId}`, updatedUser);
+            // 3. Update the user on the server - only send the orders array
+            await axiosInstance.patch(`/users/${userId}`, { orders: updatedUserOrders });
 
             // 4. Update local state
             setUsers(prevUsers => prevUsers.map(u => u.id === userId ? updatedUser : u));

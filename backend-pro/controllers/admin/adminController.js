@@ -2,9 +2,7 @@ import User from "../../models/user.js";
 import Product from "../../models/products.js";
 import asyncHandler from "../../middleware/asyncHandler.js";
 
-// @desc    Get dashboard stats
-// @route   GET /admin/dashboard
-// @access  Private/Admin
+
 const getDashboardStats = asyncHandler(async (req, res) => {
     // 1. Total Users
     const usersCount = await User.countDocuments();
@@ -35,9 +33,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     });
 });
 
-// @desc    Get all users
-// @route   GET /admin/users
-// @access  Private/Admin
+
 const getAllUsers = asyncHandler(async (req, res) => {
     const users = await User.find({});
 
@@ -56,9 +52,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
     res.json(formattedUsers);
 });
 
-// @desc    Block/Unblock user
-// @route   PATCH /admin/users/:id/block
-// @access  Private/Admin
+
 const toggleBlockUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
 
@@ -76,9 +70,8 @@ const toggleBlockUser = asyncHandler(async (req, res) => {
     }
 });
 
-// @desc    Delete user
-// @route   DELETE /admin/users/:id
-// @access  Private/Admin
+
+
 const deleteUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
 

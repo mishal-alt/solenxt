@@ -24,7 +24,10 @@ const updateUserSchema = Joi.object({
     password: Joi.string().min(6),
     isAdmin: Joi.boolean(),
     isBlock: Joi.boolean(),
-}).min(1);
+    orders: Joi.array(),
+    wishlist: Joi.array(),
+    cart: Joi.array(),
+}).min(1).unknown(true);
 
 const orderSchema = Joi.object({
     items: Joi.array().items(

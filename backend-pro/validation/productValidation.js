@@ -30,6 +30,6 @@ const updateProductSchema = Joi.object({
     cat: Joi.string(),
     stoke: Joi.number().integer().min(0),
     premium: Joi.boolean(),
-}).min(1);
+}).min(1).unknown(true);
 
 export { productSchema, updateProductSchema };

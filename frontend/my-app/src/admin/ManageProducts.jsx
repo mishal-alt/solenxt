@@ -53,11 +53,12 @@ const ManageProducts = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    const { id, ...data } = formData;
     try {
       if (editingProduct) {
-        await axiosInstance.patch(`/products/${editingProduct.id}`, formData);
+        await axiosInstance.patch(`/products/${editingProduct.id}`, data);
       } else {
-        await axiosInstance.post(`/products`, formData);
+        await axiosInstance.post(`/products`, data);
       }
       setShowModal(false);
       fetchProducts();
