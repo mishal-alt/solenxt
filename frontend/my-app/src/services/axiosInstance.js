@@ -40,7 +40,7 @@ axiosInstance.interceptors.response.use(
                     return Promise.reject(error);
                 }
 
-                const res = await axios.post(`${BASE_URL}/auth/refresh`, {
+                const res = await axios.post(`${BASE_URL}/api/auth/refresh`, {
                     refreshToken,
                 });
 

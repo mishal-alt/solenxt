@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../services/axiosInstance";
+import { BASE_URL } from "../services/api";
 
 function Cart() {
   const navigate = useNavigate();
@@ -81,7 +82,7 @@ function Cart() {
             >
               <div className="flex items-center gap-4">
                 <img
-                  src={item.image}
+                  src={item.image.startsWith("/") ? `${BASE_URL}${item.image}` : item.image}
                   alt={item.name}
                   className="w-24 h-24 object-cover rounded-xl"
                 />
