@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 import axiosInstance from "../services/axiosInstance";
+import { BASE_URL } from "../services/api";
 
 function Wishlist() {
 
@@ -107,7 +108,7 @@ function Wishlist() {
             >
               <div className="flex items-center gap-5 w-full md:w-auto">
                 <img
-                  src={product.image}
+                  src={product.image.startsWith("/") ? `${BASE_URL}${product.image}` : product.image}
                   alt={product.name}
                   className="w-28 h-28 object-cover rounded-xl border border-zinc-700"
                 />

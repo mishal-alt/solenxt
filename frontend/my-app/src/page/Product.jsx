@@ -5,6 +5,7 @@ import { FaHeart } from "react-icons/fa";
 import { Search } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../services/axiosInstance";
+import { BASE_URL } from "../services/api";
 
 function Product() {
     const navigate = useNavigate();
@@ -199,7 +200,7 @@ function Product() {
                                 <div className="relative aspect-[3/4] overflow-hidden bg-[#111] p-8">
                                     <Link to={`/product/${product.id}`} className="block h-full w-full relative z-10">
                                         <img
-                                            src={product.image}
+                                            src={product.image.startsWith("/") ? `${BASE_URL}${product.image}` : product.image}
                                             alt={product.name}
                                             className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-500"
                                         />

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Truck, ShieldCheck, RefreshCw, Star, ShoppingBag, Zap, Wind, Layers, Plus, Minus, ArrowRight } from 'lucide-react';
 import { toast } from 'react-toastify';
 import axiosInstance from "../services/axiosInstance";
+import { BASE_URL } from "../services/api";
 import { motion } from 'framer-motion';
 
 function Singleproduct() {
@@ -20,7 +21,12 @@ function Singleproduct() {
   const [cart, setCart] = useState(currentUser?.cart || []);
 
   // Mock Gallery Images (using main image for all for now)
-  const galleryImages = product ? [product.image, product.image, product.image, product.image] : [];
+  const galleryImages = product ? [
+    product.image.startsWith("/") ? `${BASE_URL}${product.image}` : product.image,
+    product.image.startsWith("/") ? `${BASE_URL}${product.image}` : product.image,
+    product.image.startsWith("/") ? `${BASE_URL}${product.image}` : product.image,
+    product.image.startsWith("/") ? `${BASE_URL}${product.image}` : product.image
+  ] : [];
 
   const updateUserData = async (updatedData) => {
     if (!currentUser) return;
@@ -196,7 +202,7 @@ function Singleproduct() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px] -z-10 pointer-events-none" />
 
               <motion.img
-                src={product.image}
+                src={product.image.startsWith("/") ? `${BASE_URL}${product.image}` : product.image}
                 alt={product.name}
                 className="w-full h-auto object-contain drop-shadow-[0_25px_25px_rgba(0,0,0,0.5)]"
               />

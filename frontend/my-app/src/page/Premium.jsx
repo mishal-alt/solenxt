@@ -8,7 +8,7 @@ function Premium() {
     const [premium, setPremium] = useState([]);
 
     useEffect(() => {
-        fetch(`${BASE_URL}/products?category=premium&pageSize=1000`)
+        fetch(`${BASE_URL}/api/products?category=premium&pageSize=1000`)
             .then((res) => res.json())
             .then((data) => {
                 setPremium(data.products);
@@ -32,7 +32,7 @@ function Premium() {
                     >
                         <Link key={product.id} to={`/product/${product.id}`} className="block">
                             <img
-                                src={product.image}
+                                src={product.image.startsWith("/") ? `${BASE_URL}${product.image}` : product.image}
                                 alt={product.name}
                                 className="w-full h-60 object-cover rounded-xl"
                             />
