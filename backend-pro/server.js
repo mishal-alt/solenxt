@@ -42,8 +42,8 @@ apiRouter.use("/admin", adminRoutes);
 
 app.use("/api", apiRouter);
 
-// Specific 404 for API routes
-app.use("/api/*", (req, res) => {
+// Specific 404 for API routes - using a regex pattern that works with Express 5+ path-to-regexp
+apiRouter.all("(.*)", (req, res) => {
     res.status(404).json({
         message: `API Route ${req.originalUrl} not found. Available endpoints are /products, /users, /auth, /admin under /api`
     });
