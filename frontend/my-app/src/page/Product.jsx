@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FiHeart, FiShoppingBag, FiSearch } from "react-icons/fi";
 import { FaHeart } from "react-icons/fa";
-import { Eye, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../services/axiosInstance";
 
 function Product() {
     const navigate = useNavigate();
-
+    const [searchParams, setSearchParams] = useSearchParams();
     const [products, setProducts] = useState([]);
+    const [totalPages, setTotalPages] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
-    const [categoryFilter, setCategoryFilter] = useState("all");
+    const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "all");
     const [sortOrder, setSortOrder] = useState("");
     const [currentUser, setCurrentUser] = useState(
         () => JSON.parse(localStorage.getItem("currentUser"))
@@ -19,7 +20,6 @@ function Product() {
     const [wishlist, setWishlist] = useState(currentUser?.wishlist || []);
     const [cart, setCart] = useState(currentUser?.cart || []);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
 
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
 
@@ -31,15 +31,29 @@ function Product() {
     }, [searchTerm]);
 
     useEffect(() => {
-        axiosInstance
-            .get("/products", {
-                params: { keyword: debouncedSearchTerm },
-            })
+        const category = searchParams.get("category");
+        if (category) {
+            setCategoryFilter(category);
+        } else {
+            setCategoryFilter("all");
+        }
+    }, [searchParams]);
+
+    useEffect(() => {
+        axiosInstance.get("/products", {
+            params: {
+                keyword: debouncedSearchTerm,
+                category: categoryFilter,
+                sort: sortOrder,
+                pageNumber: currentPage,
+            },
+        })
             .then((res) => {
-                setProducts(res.data);
+                setProducts(res.data.products);
+                setTotalPages(res.data.pages);
             })
             .catch((err) => console.error("Fetch error:", err));
-    }, [debouncedSearchTerm]);
+    }, [debouncedSearchTerm, categoryFilter, sortOrder, currentPage]);
 
     const updateUserData = async (updatedData) => {
         const id = currentUser?.id || currentUser?._id;
@@ -101,26 +115,7 @@ function Product() {
         toast.success("Added to cart!");
     };
 
-    let filteredProducts = products;
-
-    if (categoryFilter === "men")
-        filteredProducts = filteredProducts.filter((p) => p.cat === "men");
-    if (categoryFilter === "women")
-        filteredProducts = filteredProducts.filter((p) => p.cat === "women");
-    if (categoryFilter === "premium")
-        filteredProducts = filteredProducts.filter((p) => p.premium === true);
-
-    if (sortOrder === "lowToHigh")
-        filteredProducts.sort((a, b) => a.price - b.price);
-    if (sortOrder === "highToLow")
-        filteredProducts.sort((a, b) => b.price - a.price);
-
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentProducts = filteredProducts.slice(
-        startIndex,
-        startIndex + itemsPerPage
-    );
+    const currentProducts = products;
 
     useEffect(() => {
         setCurrentPage(1);
@@ -130,7 +125,7 @@ function Product() {
 
         <div className="bg-neutral-950 pt-20 min-h-screen pb-20 px-6 relative overflow-hidden selection:bg-cyan-500/30">
 
-            {/* Ambient Background Effects */}
+
             <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] -z-10 pointer-events-none" />
             <div className="fixed bottom-0 right-0 w-[800px] h-[600px] bg-purple-500/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
 
@@ -138,11 +133,11 @@ function Product() {
                 Products
             </h1>
 
-            {/* Glass Search & Filter Bar */}
+
             <div className="max-w-7xl mx-auto mb-20">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white/5 backdrop-blur-xl p-2 rounded-full border border-white/10 shadow-2xl">
 
-                    {/* Search */}
+
                     <div className="relative flex-grow w-full md:w-auto px-4">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                         <input
@@ -154,12 +149,21 @@ function Product() {
                         />
                     </div>
 
-                    {/* Filters */}
                     <div className="flex gap-2 w-full md:w-auto px-2">
                         <select
                             className="px-6 py-3 rounded-full text-sm font-medium text-gray-300 bg-white/5 border border-white/5 focus:bg-black focus:border-cyan-500/50 outline-none transition-all cursor-pointer hover:bg-white/10 appearance-none"
                             value={categoryFilter}
-                            onChange={(e) => setCategoryFilter(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setCategoryFilter(val);
+                                if (val === "all") {
+                                    const newParams = new URLSearchParams(searchParams);
+                                    newParams.delete("category");
+                                    setSearchParams(newParams);
+                                } else {
+                                    setSearchParams({ ...Object.fromEntries(searchParams), category: val });
+                                }
+                            }}
                         >
                             <option value="all">All Categories</option>
                             <option value="men">Men's Collection</option>
@@ -191,7 +195,7 @@ function Product() {
                                 key={product.id}
                                 className="group relative bg-[#0a0a0a] rounded-3xl overflow-hidden transition-all duration-500"
                             >
-                                {/* Image Area - Normal Style */}
+
                                 <div className="relative aspect-[3/4] overflow-hidden bg-[#111] p-8">
                                     <Link to={`/product/${product.id}`} className="block h-full w-full relative z-10">
                                         <img
@@ -201,7 +205,6 @@ function Product() {
                                         />
                                     </Link>
 
-                                    {/* Wishlist - Minimalist */}
                                     <button
                                         onClick={() => toggleWishlist(product.id)}
                                         className="absolute top-4 right-4 z-20 p-3 rounded-full bg-black/40 text-white hover:bg-white hover:text-red-600 transition-all duration-300"

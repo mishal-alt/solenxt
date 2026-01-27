@@ -8,47 +8,75 @@ const Orders = () => {
     const [orders, setOrders] = useState([]);
     const [users, setUsers] = useState([]);
     const [products, setProducts] = useState([]);
-    const statusOptions = ["Pending", "Shipped", "Delivered", "Cancelled"];
+    const statusOptions = ["all", "Pending", "Shipped", "Delivered", "Cancelled"];
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const ordersPerPage = 10;
+    const [orderStats, setOrderStats] = useState({
+        totalOrders: 0,
+        totalRevenue: 0,
+        shippedOrders: 0,
+    });
+
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [searchTerm]);
 
     // --- Data Fetching ---
-    const fetchData = async () => {
+    const fetchStats = async () => {
+        try {
+            const res = await axiosInstance.get("/admin/orders/stats");
+            setOrderStats(res.data);
+        } catch (err) {
+            console.error("Error fetching stats:", err);
+        }
+    };
+
+    const fetchOrders = async () => {
+        try {
+            const res = await axiosInstance.get("/admin/orders", {
+                params: {
+                    keyword: debouncedSearchTerm,
+                    status: statusFilter,
+                    pageNumber: currentPage,
+                    pageSize: ordersPerPage,
+                }
+            });
+            setOrders(res.data.orders);
+            setTotalPages(res.data.pages);
+        } catch (err) {
+            console.error("Error fetching orders:", err);
+        }
+    };
+
+    const fetchSupportingData = async () => {
         try {
             const [usersRes, productsRes] = await Promise.all([
-                axiosInstance.get("/users"),
-                axiosInstance.get("/products"),
+                axiosInstance.get("/admin/users", { params: { pageSize: 1000 } }),
+                axiosInstance.get("/products", { params: { pageSize: 1000 } }),
             ]);
-
-            const fetchedUsers = usersRes.data;
-            const fetchedProducts = productsRes.data;
-
-            setUsers(fetchedUsers);
-            setProducts(fetchedProducts); // Store for accurate stock calculation
-
-            // Extract all orders from all users
-            const allOrders = fetchedUsers.flatMap(user =>
-                (user.orders || []).map(order => ({
-                    orderId: order.id,
-                    customer: user.fullName,
-                    userId: user.id,
-                    total: order.total,
-                    status: order.status,
-                    date: order.date,
-                    items: order.items,
-                }))
-            );
-
-            // Sort by date descending (latest first)
-            allOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
-            setOrders(allOrders);
-
+            setUsers(usersRes.data.users);
+            setProducts(productsRes.data.products);
         } catch (err) {
-            console.error("Error fetching data:", err);
+            console.error("Error fetching supporting data:", err);
         }
     };
 
     useEffect(() => {
-        fetchData();
+        fetchSupportingData();
+        fetchStats();
     }, []);
+
+    useEffect(() => {
+        fetchOrders();
+    }, [debouncedSearchTerm, statusFilter, currentPage]);
 
     // --- Stock Update Logic (Deduct/Restore) ---
 
@@ -139,9 +167,10 @@ const Orders = () => {
                 order.orderId === orderId ? { ...order, status: newStatus } : order
             ));
 
-            // 5. Re-fetch products to update the local stock state, reflecting the deduction/restoration
-            const productsRes = await axiosInstance.get("/products");
-            setProducts(productsRes.data);
+            // 5. Re-fetch data
+            await fetchSupportingData();
+            await fetchOrders();
+            await fetchStats();
 
             alert(`Order ${orderId} status successfully updated to ${newStatus}.`);
 
@@ -152,9 +181,11 @@ const Orders = () => {
     };
 
     // --- Calculated Stats ---
-    const totalOrders = orders.length;
-    const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
-    const shippedOrders = orders.filter(o => o.status === "Shipped").length;
+    const { totalOrders, totalRevenue, shippedOrders } = orderStats;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [debouncedSearchTerm, statusFilter]);
 
     // Helper for status badge color
     const getStatusColor = (status) => {
@@ -193,6 +224,28 @@ const Orders = () => {
                             <CountUp end={shippedOrders} duration={1.5} />
                         </p>
                     </div>
+                </div>
+
+                {/* Search & Filter */}
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                    <input
+                        type="text"
+                        placeholder="Search by customer name or order ID..."
+                        className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black outline-none"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black outline-none min-w-[150px]"
+                    >
+                        {statusOptions.map(status => (
+                            <option key={status} value={status}>
+                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 {/* Orders Table */}
@@ -272,6 +325,22 @@ const Orders = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex justify-center mt-6 gap-2">
+                    {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                            key={i + 1}
+                            onClick={() => setCurrentPage(i + 1)}
+                            className={`px-3 py-1 rounded font-medium transition ${currentPage === i + 1
+                                ? "bg-black text-white shadow-lg"
+                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                }`}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
                 </div>
             </div>
         </div>

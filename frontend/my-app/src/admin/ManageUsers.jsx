@@ -10,12 +10,55 @@ const ManageUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all"); // "all", "blocked", "admin"
 
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+  const [userStats, setUserStats] = useState({
+    totalUsers: 0,
+    admins: 0,
+    blocked: 0,
+    activeUsers: 0,
+  });
+
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+
   useEffect(() => {
-    fetchUsers();
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    fetchStats();
   }, []);
 
+  useEffect(() => {
+    fetchUsers();
+  }, [debouncedSearchTerm, filter, currentPage]);
+
+  const fetchStats = () => {
+    axiosInstance
+      .get("/admin/users/stats")
+      .then((res) => setUserStats(res.data))
+      .catch((err) => console.error("Error fetching stats:", err));
+  };
+
   const fetchUsers = () => {
-    axiosInstance.get("/admin/users").then((res) => setUsers(res.data));
+    axiosInstance
+      .get("/admin/users", {
+        params: {
+          keyword: debouncedSearchTerm,
+          filter: filter,
+          pageNumber: currentPage,
+          pageSize: usersPerPage,
+        },
+      })
+      .then((res) => {
+        setUsers(res.data.users);
+        setTotalPages(res.data.pages);
+      })
+      .catch((err) => console.error("Error fetching users:", err));
   };
 
   // ✅ Toggle Admin Status
@@ -24,6 +67,7 @@ const ManageUsers = () => {
     // This assumes the logged in user is admin, which they must be to see this page.
     await axiosInstance.patch(`/users/${id}`, { isAdmin: !isAdmin });
     fetchUsers();
+    fetchStats();
   };
 
   // ✅ Toggle Block Status
@@ -31,6 +75,7 @@ const ManageUsers = () => {
     // Use the specific admin route for blocking
     await axiosInstance.patch(`/admin/users/${id}/block`);
     fetchUsers();
+    fetchStats();
   };
 
   // ✅ Delete User
@@ -39,6 +84,7 @@ const ManageUsers = () => {
       try {
         await axiosInstance.delete(`/admin/users/${id}`);
         fetchUsers();
+        fetchStats();
         toast.success("User deleted successfully");
       } catch (err) {
         toast.error(err.response?.data?.message || "Error deleting user");
@@ -46,18 +92,14 @@ const ManageUsers = () => {
     }
   };
 
-  // ✅ Filter users based on search & dropdown
-  const filteredUsers = users
-    .filter(
-      (u) =>
-        u.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .filter((u) => {
-      if (filter === "blocked") return u.isBlock;
-      if (filter === "admin") return u.isAdmin;
-      return true; // all users
-    });
+  const { totalUsers, admins, blocked, activeUsers } = userStats;
+
+  // ✅ Search, filtering, and pagination are now handled by the backend
+  const filteredUsers = users;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchTerm, filter]);
 
   return (
     <div className="ml-64 p-6 bg-gray-50 min-h-screen">
@@ -71,25 +113,25 @@ const ManageUsers = () => {
             <div className="p-6 bg-black text-white rounded-xl shadow-lg">
               <h2 className="text-xl font-semibold">Total Users</h2>
               <p className="text-3xl mt-2">
-                <CountUp end={users.length} duration={1.5} />
+                <CountUp end={totalUsers} duration={1.5} />
               </p>
             </div>
             <div className="p-6 bg-black text-white rounded-xl shadow-lg">
               <h2 className="text-xl font-semibold">Admins</h2>
               <p className="text-3xl mt-2">
-                <CountUp end={users.filter((u) => u.isAdmin).length} duration={1.5} />
+                <CountUp end={admins} duration={1.5} />
               </p>
             </div>
             <div className="p-6 bg-black text-white rounded-xl shadow-lg">
               <h2 className="text-xl font-semibold">Blocked</h2>
               <p className="text-3xl mt-2">
-                <CountUp end={users.filter((u) => u.isBlock).length} duration={1.5} />
+                <CountUp end={blocked} duration={1.5} />
               </p>
             </div>
             <div className="p-6 bg-black text-white rounded-xl shadow-lg">
               <h2 className="text-xl font-semibold">Active Users</h2>
               <p className="text-3xl mt-2">
-                <CountUp end={users.filter((u) => !u.isBlock).length} duration={1.5} />
+                <CountUp end={activeUsers} duration={1.5} />
               </p>
             </div>
           </div>
@@ -135,7 +177,7 @@ const ManageUsers = () => {
                   return (
                     <tr key={userId} className="border-t border-gray-200 hover:bg-gray-50 transition">
                       {/* ✅ Serial Number */}
-                      <td className="p-3 font-medium text-gray-600">{index + 1}</td>
+                      <td className="p-3 font-medium text-gray-600">{(currentPage - 1) * usersPerPage + index + 1}</td>
                       {/* ✅ User Name and ID */}
                       <td className="p-3">
                         <div className="flex items-center gap-3">
@@ -220,6 +262,22 @@ const ManageUsers = () => {
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* ✅ Pagination */}
+          <div className="flex justify-center mt-6 gap-2">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-3 py-1 rounded font-medium transition ${currentPage === i + 1
+                  ? "bg-black text-white shadow-md"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  }`}
+              >
+                {i + 1}
+              </button>
+            ))}
           </div>
         </div>
       </div>

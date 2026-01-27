@@ -41,9 +41,9 @@ function Home() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
-                            { title: "Men's Pro", label: "Performance & Style", icon: Zap, link: "/product", bg: catMen },
-                            { title: "Women's Elite", label: "Grace & Power", icon: TrendingUp, link: "/product", bg: catWomen },
-                            { title: "Limited Edition", label: "The Rare Finds", icon: ShieldCheck, link: "/product", bg: luxuryBg }
+                            { title: "Men's Pro", label: "Performance & Style", icon: Zap, link: "/product?category=men", bg: catMen },
+                            { title: "Women's Elite", label: "Grace & Power", icon: TrendingUp, link: "/product?category=women", bg: catWomen },
+                            { title: "Limited Edition", label: "The Rare Finds", icon: ShieldCheck, link: "/product?category=premium", bg: luxuryBg }
                         ].map((item, i) => (
                             <Link to={item.link} key={i} className="group relative block aspect-[4/5] overflow-hidden rounded-[3rem] border border-white/10 backdrop-blur-xl transition-all duration-700 hover:border-cyan-500/50">
                                 {/* Card Background Image */}

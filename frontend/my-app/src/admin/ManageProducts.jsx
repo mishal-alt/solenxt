@@ -1,6 +1,7 @@
 // src/admin/ManageProducts.jsx
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../services/axiosInstance";
+import { BASE_URL } from "../services/api";
 import Sidebar from "./components/Sidebar";
 import CountUp from "react-countup";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
@@ -9,6 +10,7 @@ const ManageProducts = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all"); // all, men, women
+  const [sortOrder, setSortOrder] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
@@ -19,19 +21,60 @@ const ManageProducts = () => {
     stoke: "",
     image: "",
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const productsPerPage = 8;
+
+  const [productStats, setProductStats] = useState({
+    totalProducts: 0,
+    outOfStock: 0,
+    categories: 0,
+    totalValue: 0,
+  });
+
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [debouncedSearchTerm, filterCategory, sortOrder, currentPage]);
+
+  const fetchStats = () => {
+    axiosInstance
+      .get("/products/stats")
+      .then((res) => setProductStats(res.data))
+      .catch((err) => console.error("Error fetching stats:", err));
+  };
 
   const fetchProducts = () => {
     axiosInstance
-      .get("/products")
-      .then((res) => setProducts(res.data))
+      .get("/products", {
+        params: {
+          keyword: debouncedSearchTerm,
+          category: filterCategory,
+          sort: sortOrder,
+          pageNumber: currentPage,
+          pageSize: productsPerPage,
+        },
+      })
+      .then((res) => {
+        setProducts(res.data.products);
+        setTotalPages(res.data.pages);
+      })
       .catch((err) => console.error("Error fetching products:", err));
   };
 
@@ -39,29 +82,60 @@ const ManageProducts = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setImageFile(file);
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+      // Clear URL if file is selected
+      setFormData(prev => ({ ...prev, image: "" }));
+    }
+  };
+
   const handleAddProduct = () => {
     setEditingProduct(null);
     setFormData({ id: "", name: "", price: "", cat: "", stoke: "", image: "" });
+    setImageFile(null);
+    setImagePreview("");
     setShowModal(true);
   };
 
   const handleEdit = (product) => {
     setEditingProduct(product);
     setFormData({ ...product });
+    setImageFile(null);
+    setImagePreview(product.image.startsWith("/") ? `${BASE_URL}${product.image}` : product.image);
     setShowModal(true);
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
     const { id, ...data } = formData;
+
+    const submitData = new FormData();
+    Object.keys(data).forEach(key => {
+      if (key !== 'image' || data[key]) {
+        submitData.append(key, data[key]);
+      }
+    });
+
+    if (imageFile) {
+      submitData.append("image", imageFile);
+    }
+
     try {
       if (editingProduct) {
-        await axiosInstance.patch(`/products/${editingProduct.id}`, data);
+        await axiosInstance.patch(`/products/${editingProduct.id}`, submitData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
       } else {
-        await axiosInstance.post(`/products`, data);
+        await axiosInstance.post(`/products`, submitData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
       }
       setShowModal(false);
       fetchProducts();
+      fetchStats();
     } catch (err) {
       console.error("Error saving product:", err);
     }
@@ -72,31 +146,21 @@ const ManageProducts = () => {
       try {
         await axiosInstance.delete(`/products/${id}`);
         fetchProducts();
+        fetchStats();
       } catch (err) {
         console.error("Error deleting product:", err);
       }
     }
   };
 
-  const totalProducts = products.length;
-  const outOfStock = products.filter((p) => p.stoke === 0).length;
-  const categories = [...new Set(products.map((p) => p.cat))].length;
-  const totalValue = products.reduce((sum, p) => sum + p.price * p.stoke, 0);
+  const { totalProducts, outOfStock, categories, totalValue } = productStats;
 
-  // ✅ Filter products by search and category
-  const filteredProducts = products
-    .filter(
-      (p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.cat.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .filter((p) => (filterCategory === "all" ? true : p.cat.toLowerCase() === filterCategory));
+  // ✅ Search and category filtering are now handled by the backend
+  const currentProducts = products;
 
-  // Pagination logic
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchTerm, filterCategory, sortOrder]);
 
   return (
     <div className="ml-64 p-6 bg-gray-50 min-h-screen">
@@ -145,6 +209,15 @@ const ManageProducts = () => {
               <option value="men">Men</option>
               <option value="women">Women</option>
             </select>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="p-3 border rounded-lg"
+            >
+              <option value="">Sort Order</option>
+              <option value="lowToHigh">Price: Low to High</option>
+              <option value="highToLow">Price: High to Low</option>
+            </select>
             <button
               onClick={handleAddProduct}
               className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
@@ -173,7 +246,11 @@ const ManageProducts = () => {
                   <td className="p-3 font-medium">{(currentPage - 1) * productsPerPage + index + 1}</td>
                   <td className="p-3">{p.id}</td>
                   <td className="p-3">
-                    <img src={p.image} alt={p.name} className="w-16 h-16 object-cover rounded-lg border" />
+                    <img
+                      src={p.image.startsWith('/') ? `${BASE_URL}${p.image}` : p.image}
+                      alt={p.name}
+                      className="w-16 h-16 object-cover rounded-lg border"
+                    />
                   </td>
                   <td className="p-3">{p.name}</td>
                   <td className="p-3">₹{p.price}</td>
@@ -220,7 +297,39 @@ const ManageProducts = () => {
                   <input type="number" name="price" value={formData.price} onChange={handleChange} placeholder="Price" required className="w-full border p-2 rounded" />
                   <input type="text" name="cat" value={formData.cat} onChange={handleChange} placeholder="Category" required className="w-full border p-2 rounded" />
                   <input type="number" name="stoke" value={formData.stoke} onChange={handleChange} placeholder="Stock" required className="w-full border p-2 rounded" />
-                  <input type="text" name="image" value={formData.image} onChange={handleChange} placeholder="Image URL" required className="w-full border p-2 rounded" />
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Product Image (URL or Upload)</label>
+                    <input
+                      type="text"
+                      name="image"
+                      value={formData.image}
+                      onChange={(e) => {
+                        handleChange(e);
+                        if (e.target.value) {
+                          setImageFile(null);
+                          setImagePreview(e.target.value);
+                        }
+                      }}
+                      placeholder="Image URL"
+                      className="w-full border p-2 rounded"
+                      disabled={imageFile !== null}
+                    />
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-gray-500">OR</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="text-sm"
+                      />
+                    </div>
+                    {imagePreview && (
+                      <div className="mt-2">
+                        <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded border" />
+                      </div>
+                    )}
+                  </div>
                   <button type="submit" className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition">
                     {editingProduct ? "Update Product" : "Add Product"}
                   </button>

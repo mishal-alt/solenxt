@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import connectDB from './config/db.js';
 import productRoutes from "./routes/productroutes.js";
 import userRoutes from "./routes/userroutes.js";
@@ -29,6 +30,9 @@ app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 console.log("Admin Routes Registered at /admin");
+
+const __dirname = path.resolve();
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 // Error Handler Middleware
 app.use(errorHandler);

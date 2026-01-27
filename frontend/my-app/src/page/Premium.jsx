@@ -2,17 +2,16 @@ import React from 'react'
 import { useEffect, useState } from "react";
 import { FiHeart } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import { BASE_URL } from "../services/api"; 
+import { BASE_URL } from "../services/api";
 
 function Premium() {
     const [premium, setPremium] = useState([]);
 
     useEffect(() => {
-        fetch(`${BASE_URL}/products`) 
+        fetch(`${BASE_URL}/products?category=premium&pageSize=1000`)
             .then((res) => res.json())
             .then((data) => {
-                const premiumonly = data.filter((item) => item.premium === true);
-                setPremium(premiumonly);
+                setPremium(data.products);
             });
     }, []);
 

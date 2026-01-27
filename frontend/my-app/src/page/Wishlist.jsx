@@ -18,8 +18,8 @@ function Wishlist() {
       setCart(currentUser.cart || []);
     }
 
-    axiosInstance.get("/products")
-      .then((res) => setProducts(res.data))
+    axiosInstance.get("/products", { params: { pageSize: 1000 } })
+      .then((res) => setProducts(res.data.products))
       .catch((err) => console.log(err));
   }, []);
 

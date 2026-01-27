@@ -35,7 +35,30 @@ const getDashboardStats = asyncHandler(async (req, res) => {
 
 
 const getAllUsers = asyncHandler(async (req, res) => {
-    const users = await User.find({});
+    const pageSize = Number(req.query.pageSize) || 10;
+    const page = Number(req.query.pageNumber) || 1;
+    const filter = req.query.filter; // "all", "blocked", "admin"
+
+    const query = {};
+
+    if (req.query.keyword) {
+        query.$or = [
+            { fullName: { $regex: req.query.keyword, $options: "i" } },
+            { email: { $regex: req.query.keyword, $options: "i" } },
+        ];
+    }
+
+    if (filter === "blocked") {
+        query.isBlock = true;
+    } else if (filter === "admin") {
+        query.isAdmin = true;
+    }
+
+    const count = await User.countDocuments(query);
+    const users = await User.find(query)
+        .sort({ joinDate: -1 }) // Default sort by join date
+        .limit(pageSize)
+        .skip(pageSize * (page - 1));
 
     const formattedUsers = users.map((u) => ({
         id: u._id.toString(),
@@ -49,7 +72,21 @@ const getAllUsers = asyncHandler(async (req, res) => {
         orders: u.orders || [],
     }));
 
-    res.json(formattedUsers);
+    res.json({ users: formattedUsers, page, pages: Math.ceil(count / pageSize), total: count });
+});
+
+const getUserStats = asyncHandler(async (req, res) => {
+    const totalUsers = await User.countDocuments();
+    const admins = await User.countDocuments({ isAdmin: true });
+    const blocked = await User.countDocuments({ isBlock: true });
+    const activeUsers = totalUsers - blocked;
+
+    res.json({
+        totalUsers,
+        admins,
+        blocked,
+        activeUsers,
+    });
 });
 
 
@@ -88,9 +125,92 @@ const deleteUser = asyncHandler(async (req, res) => {
     }
 });
 
+const getAllOrders = asyncHandler(async (req, res) => {
+    const pageSize = Number(req.query.pageSize) || 10;
+    const page = Number(req.query.pageNumber) || 1;
+    const statusFilter = req.query.status;
+    const keyword = req.query.keyword;
+
+    let aggregateQuery = [
+        { $unwind: "$orders" },
+        {
+            $project: {
+                orderId: "$orders.id",
+                customer: "$fullName",
+                userId: "$_id",
+                total: "$orders.total",
+                status: "$orders.status",
+                date: "$orders.date",
+                items: "$orders.items",
+            }
+        }
+    ];
+
+    if (statusFilter && statusFilter !== "all") {
+        const statusRegex = new RegExp(`^${statusFilter}$`, 'i');
+        aggregateQuery.push({ $match: { status: statusRegex } });
+    }
+
+    if (keyword) {
+        aggregateQuery.push({
+            $match: {
+                $or: [
+                    { customer: { $regex: keyword, $options: "i" } },
+                    { orderId: { $regex: keyword, $options: "i" } }
+                ]
+            }
+        });
+    }
+
+    aggregateQuery.push({ $sort: { date: -1 } });
+
+    const totalCountResults = await User.aggregate([...aggregateQuery, { $count: "total" }]);
+    const totalCount = totalCountResults.length > 0 ? totalCountResults[0].total : 0;
+
+    aggregateQuery.push({ $skip: pageSize * (page - 1) });
+    aggregateQuery.push({ $limit: pageSize });
+
+    const orders = await User.aggregate(aggregateQuery);
+
+    res.json({
+        orders,
+        page,
+        pages: Math.ceil(totalCount / pageSize),
+        total: totalCount
+    });
+});
+
+const getOrderStats = asyncHandler(async (req, res) => {
+    const users = await User.find({}).select("orders");
+    let totalOrders = 0;
+    let totalRevenue = 0;
+    let shippedOrders = 0;
+
+    users.forEach((user) => {
+        if (user.orders) {
+            totalOrders += user.orders.length;
+            user.orders.forEach((order) => {
+                totalRevenue += (order.total || 0);
+                if (order.status?.toLowerCase() === "shipped") {
+                    shippedOrders++;
+                }
+            });
+        }
+    });
+
+    res.json({
+        totalOrders,
+        totalRevenue,
+        shippedOrders,
+    });
+});
+
 export {
     getDashboardStats,
     getAllUsers,
     toggleBlockUser,
     deleteUser,
+    getUserStats,
+    getAllOrders,
+    getOrderStats,
 };

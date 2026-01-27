@@ -2,16 +2,36 @@ import Product from "../models/products.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 
 const getProducts = asyncHandler(async (req, res) => {
+    const pageSize = Number(req.query.pageSize) || 8;
+    const page = Number(req.query.pageNumber) || 1;
+
     const keyword = req.query.keyword
         ? {
-            name: {
-                $regex: req.query.keyword,
-                $options: "i",
-            },
+            $or: [
+                { name: { $regex: req.query.keyword, $options: "i" } },
+                { cat: { $regex: req.query.keyword, $options: "i" } },
+            ],
         }
         : {};
 
-    const products = await Product.find({ ...keyword });
+    const category = req.query.category && req.query.category !== 'all'
+        ? req.query.category === 'premium'
+            ? { premium: true }
+            : { cat: req.query.category }
+        : {};
+
+    const sort = {};
+    if (req.query.sort === "lowToHigh") {
+        sort.price = 1;
+    } else if (req.query.sort === "highToLow") {
+        sort.price = -1;
+    }
+
+    const count = await Product.countDocuments({ ...keyword, ...category });
+    const products = await Product.find({ ...keyword, ...category })
+        .sort(sort)
+        .limit(pageSize)
+        .skip(pageSize * (page - 1));
 
     const formattedProducts = products.map((p) => ({
         id: p._id.toString(),
@@ -23,7 +43,7 @@ const getProducts = asyncHandler(async (req, res) => {
         stoke: p.stoke,
     }));
 
-    res.json(formattedProducts);
+    res.json({ products: formattedProducts, page, pages: Math.ceil(count / pageSize), total: count });
 });
 
 const getProductById = asyncHandler(async (req, res) => {
@@ -81,4 +101,19 @@ const deleteProduct = asyncHandler(async (req, res) => {
     }
 });
 
-export { getProducts, getProductById, createProduct, updateProduct, deleteProduct };
+const getProductStats = asyncHandler(async (req, res) => {
+    const products = await Product.find({});
+    const totalProducts = products.length;
+    const outOfStock = products.filter((p) => p.stoke === 0).length;
+    const categories = [...new Set(products.map((p) => p.cat))].length;
+    const totalValue = products.reduce((sum, p) => sum + (p.price || 0) * (p.stoke || 0), 0);
+
+    res.json({
+        totalProducts,
+        outOfStock,
+        categories,
+        totalValue,
+    });
+});
+
+export { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductStats };

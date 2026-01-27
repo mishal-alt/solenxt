@@ -4,6 +4,9 @@ import {
     getAllUsers,
     toggleBlockUser,
     deleteUser,
+    getUserStats,
+    getAllOrders,
+    getOrderStats,
 } from "../controllers/admin/adminController.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 
@@ -14,7 +17,10 @@ router.use(protect);
 router.use(admin);
 
 router.get("/dashboard", getDashboardStats);
+router.get("/users/stats", getUserStats);
 router.get("/users", getAllUsers);
+router.get("/orders/stats", getOrderStats);
+router.get("/orders", getAllOrders);
 router.patch("/users/:id/block", toggleBlockUser);
 router.delete("/users/:id", deleteUser);
 
