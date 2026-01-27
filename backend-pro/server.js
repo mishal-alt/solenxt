@@ -16,7 +16,14 @@ console.error = console.log;
 
 connectDB();
 
-app.use(cors())
+// CORS configuration
+app.use(cors({
+    origin: ["https://project-solenxt.vercel.app", "http://localhost:5173", "http://localhost:3000"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(express.json())
 
 // Request logger
@@ -24,12 +31,25 @@ app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     next();
 });
-app.use("/products", productRoutes);
-console.log("Product Routes Registered");
-app.use("/users", userRoutes);
-app.use("/auth", authRoutes);
-app.use("/admin", adminRoutes);
-console.log("Admin Routes Registered at /admin");
+
+// API Routes
+const apiRouter = express.Router();
+
+apiRouter.use("/products", productRoutes);
+apiRouter.use("/users", userRoutes);
+apiRouter.use("/auth", authRoutes);
+apiRouter.use("/admin", adminRoutes);
+
+app.use("/api", apiRouter);
+
+// Specific 404 for API routes
+app.use("/api/*", (req, res) => {
+    res.status(404).json({
+        message: `API Route ${req.originalUrl} not found. Available endpoints are /products, /users, /auth, /admin under /api`
+    });
+});
+
+console.log("API Routes Consolidated at /api");
 
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
