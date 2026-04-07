@@ -13,7 +13,7 @@ const navLinks = [
 const Header = () => (
     <header className="bg-black text-white p-4 shadow-lg sticky top-0 z-10 border-b border-gray-800">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-            {/* Logo */}    
+            {/* Logo */}
             <div className="text-2xl font-extrabold tracking-wider">
                 <span className="text-white">SOLE</span><span className="text-gray-400">NXT</span>
             </div>
@@ -140,40 +140,40 @@ const ContactPage = () => {
             <main className="max-w-7xl mx-auto relative z-10">
 
                 {/* Title Section */}
-                <div className="text-center mb-24">
-                    <h1 className="text-5xl md:text-8xl font-thin tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 mb-8 uppercase">
+                <div className="text-center mb-16 md:mb-24 px-4">
+                    <h1 className="text-4xl md:text-8xl font-thin tracking-[0.1em] md:tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 mb-6 md:mb-8 uppercase">
                         GET IN <span className="font-black">TOUCH</span>
                     </h1>
-                    <p className="text-xl md:text-2xl text-gray-500 max-w-2xl mx-auto font-light leading-relaxed tracking-wide italic">
+                    <p className="text-lg md:text-2xl text-gray-500 max-w-2xl mx-auto font-light leading-relaxed tracking-wide italic">
                         Whether you have a question about an exclusive drop or just want to join the network, our team is ready.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <div className="flex flex-col lg:grid lg:grid-cols-3 gap-12">
 
                     {/* Contact Information Cards (Left) */}
-                    <div className="lg:col-span-1 space-y-8">
+                    <div className="lg:col-span-1 space-y-6 md:space-y-8 order-2 lg:order-1">
                         {contactInfo.map((item) => (
                             <div
                                 key={item.title}
-                                className="bg-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl transition-all duration-500 hover:border-cyan-500/50 hover:bg-white/[0.08] group"
+                                className="bg-white/5 backdrop-blur-xl p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl transition-all duration-500 hover:border-cyan-500/50 hover:bg-white/[0.08] group"
                             >
-                                <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 flex items-center justify-center mb-6 group-hover:bg-cyan-500 group-hover:text-black transition-all">
-                                    <item.icon className="w-7 h-7" />
+                                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-cyan-500/10 flex items-center justify-center mb-6 group-hover:bg-cyan-500 group-hover:text-black transition-all">
+                                    <item.icon className="w-6 h-6 md:w-7 md:h-7" />
                                 </div>
-                                <h3 className="text-lg font-bold text-white mb-2 uppercase tracking-wider">{item.title}</h3>
-                                <p className="text-gray-500 font-light">{item.detail}</p>
+                                <h3 className="text-base md:text-lg font-bold text-white mb-2 uppercase tracking-wider">{item.title}</h3>
+                                <p className="text-gray-500 text-sm font-light italic">{item.detail}</p>
                             </div>
                         ))}
 
                         {/* Map Placeholder */}
-                        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-[3rem] shadow-2xl h-80 border border-white/10 overflow-hidden relative group">
+                        <div className="bg-white/5 backdrop-blur-xl p-4 md:p-6 rounded-[2rem] md:rounded-[3rem] shadow-2xl h-64 md:h-80 border border-white/10 overflow-hidden relative group">
                             <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10 pointer-events-none" />
                             <iframe
                                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.22743588938!2d-122.41941648468166!3d37.7749299797587!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858064d4f6c44b%3A0x6b772b1a039d91f!2sSan%20Francisco%20City%20Hall!5e0!3m2!1sen!2sus!4v1686940000000!5m2!1sen!2sus"
                                 width="100%"
                                 height="100%"
-                                style={{ border: 0, borderRadius: '2rem', filter: 'grayscale(1) invert(1) brightness(0.8)' }}
+                                style={{ border: 0, borderRadius: '1.5rem', filter: 'grayscale(1) invert(1) brightness(0.8)' }}
                                 allowFullScreen=""
                                 loading="lazy"
                                 referrerPolicy="no-referrer-when-downgrade"
@@ -183,78 +183,78 @@ const ContactPage = () => {
                     </div>
 
                     {/* Contact Form (Right) */}
-                    <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl p-8 md:p-16 rounded-[4rem] shadow-2xl border border-white/10 relative overflow-hidden">
+                    <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl p-8 md:p-16 rounded-[2.5rem] md:rounded-[4rem] shadow-2xl border border-white/10 relative overflow-hidden order-1 lg:order-2">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-3xl -z-10" />
 
-                        <h2 className="text-4xl font-thin text-white mb-12 uppercase">
+                        <h2 className="text-2xl md:text-4xl font-thin text-white mb-8 md:mb-12 uppercase">
                             Send Us a <span className="font-black tracking-tight">Transmission</span>
                         </h2>
 
-                        <form onSubmit={handleSubmit} className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                                 <div className="space-y-2">
-                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Identity</label>
+                                    <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Identity</label>
                                     <input
                                         type="text"
                                         name="name"
                                         placeholder="Full Name"
                                         value={formData.name}
                                         onChange={handleChange}
-                                        className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 focus:outline-none transition-all duration-300 placeholder-gray-700"
+                                        className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 focus:outline-none transition-all duration-300 placeholder-gray-700 text-xs"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Portal (Email)</label>
+                                    <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Portal (Email)</label>
                                     <input
                                         type="email"
                                         name="email"
                                         placeholder="name@example.com"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 focus:outline-none transition-all duration-300 placeholder-gray-700"
+                                        className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 focus:outline-none transition-all duration-300 placeholder-gray-700 text-xs"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Subject</label>
+                                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Subject</label>
                                 <input
                                     type="text"
                                     name="subject"
                                     placeholder="Order #882 / Partnership Inquiry"
                                     value={formData.subject}
                                     onChange={handleChange}
-                                    className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 focus:outline-none transition-all duration-300 placeholder-gray-700"
+                                    className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 focus:outline-none transition-all duration-300 placeholder-gray-700 text-xs"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Message Content</label>
+                                <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Message Content</label>
                                 <textarea
                                     name="message"
-                                    rows="6"
+                                    rows="5"
                                     placeholder="Write your transmission here..."
                                     value={formData.message}
                                     onChange={handleChange}
-                                    className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-3xl focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 focus:outline-none transition-all duration-300 resize-none placeholder-gray-700 font-light"
+                                    className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-3xl focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 focus:outline-none transition-all duration-300 resize-none placeholder-gray-700 font-light text-xs"
                                 ></textarea>
                             </div>
 
                             <button
                                 type="submit"
-                                className="w-full bg-white text-black font-bold py-5 mt-6 rounded-full shadow-[0_10px_30px_rgba(255,255,255,0.1)] hover:bg-cyan-500 hover:text-white transition-all duration-500 uppercase tracking-[0.3em] text-xs disabled:opacity-30"
+                                className="w-full bg-white text-black font-black py-5 mt-4 rounded-full shadow-[0_10px_30px_rgba(255,255,255,0.05)] hover:bg-cyan-500 hover:text-white transition-all duration-500 uppercase tracking-[0.3em] text-[10px] disabled:opacity-30"
                                 disabled={submissionStatus === 'loading'}
                             >
                                 {submissionStatus === 'loading' ? 'Transmitting...' : 'Send Transmission'}
                             </button>
 
                             {submissionStatus === 'success' && (
-                                <p className="mt-6 text-cyan-400 text-center text-xs font-bold uppercase tracking-widest">
+                                <p className="mt-4 text-cyan-400 text-center text-[10px] font-bold uppercase tracking-widest italic">
                                     Transmission Received. We will respond shortly.
                                 </p>
                             )}
                             {submissionStatus === 'error' && (
-                                <p className="mt-6 text-rose-400 text-center text-xs font-bold uppercase tracking-widest">
+                                <p className="mt-4 text-rose-400 text-center text-[10px] font-bold uppercase tracking-widest italic">
                                     Connection Failure. Please attempt again.
                                 </p>
                             )}

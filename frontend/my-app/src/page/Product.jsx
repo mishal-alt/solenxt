@@ -130,29 +130,29 @@ function Product() {
             <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] -z-10 pointer-events-none" />
             <div className="fixed bottom-0 right-0 w-[800px] h-[600px] bg-purple-500/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
 
-            <h1 className="text-5xl md:text-8xl font-thin text-center tracking-[0.3em] p-10 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 uppercase">
+            <h1 className="text-4xl md:text-8xl font-thin text-center tracking-[0.1em] md:tracking-[0.3em] py-8 md:p-10 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 uppercase">
                 Products
             </h1>
 
 
-            <div className="max-w-7xl mx-auto mb-20">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white/5 backdrop-blur-xl p-2 rounded-full border border-white/10 shadow-2xl">
+            <div className="max-w-7xl mx-auto mb-12 md:mb-20">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white/5 backdrop-blur-xl p-2 md:p-2 rounded-3xl md:rounded-full border border-white/10 shadow-2xl">
 
 
                     <div className="relative flex-grow w-full md:w-auto px-4">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                         <input
                             type="text"
                             placeholder="Search collection..."
-                            className="w-full pl-12 pr-6 py-4 rounded-full bg-transparent text-white focus:outline-none placeholder-gray-500 tracking-wide"
+                            className="w-full pl-12 pr-6 py-4 rounded-full bg-transparent text-white focus:outline-none placeholder-gray-500 tracking-wide text-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
 
-                    <div className="flex gap-2 w-full md:w-auto px-2">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto px-2 pb-2 md:pb-0">
                         <select
-                            className="px-6 py-3 rounded-full text-sm font-medium text-gray-300 bg-white/5 border border-white/5 focus:bg-black focus:border-cyan-500/50 outline-none transition-all cursor-pointer hover:bg-white/10 appearance-none"
+                            className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-medium text-gray-300 bg-white/5 border border-white/5 focus:bg-black focus:border-cyan-500/50 outline-none transition-all cursor-pointer hover:bg-white/10 appearance-none"
                             value={categoryFilter}
                             onChange={(e) => {
                                 const val = e.target.value;
@@ -173,7 +173,7 @@ function Product() {
                         </select>
 
                         <select
-                            className="px-6 py-3 rounded-full text-sm font-medium text-gray-300 bg-white/5 border border-white/5 focus:bg-black focus:border-cyan-500/50 outline-none transition-all cursor-pointer hover:bg-white/10 appearance-none"
+                            className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-medium text-gray-300 bg-white/5 border border-white/5 focus:bg-black focus:border-cyan-500/50 outline-none transition-all cursor-pointer hover:bg-white/10 appearance-none"
                             value={sortOrder}
                             onChange={(e) => setSortOrder(e.target.value)}
                         >
@@ -185,7 +185,7 @@ function Product() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 max-w-[1920px] mx-auto overflow-hidden">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 max-w-[1920px] mx-auto overflow-hidden">
                 {currentProducts.length > 0 ? (
                     currentProducts.map((product) => {
                         const isInCart = cart.some((item) => String(item.id) === String(product.id) || String(item._id) === String(product.id));
@@ -194,15 +194,15 @@ function Product() {
                         return (
                             <div
                                 key={product.id}
-                                className="group relative bg-[#0a0a0a] rounded-3xl overflow-hidden transition-all duration-500"
+                                className="group relative bg-[#0a0a0a] rounded-3xl overflow-hidden transition-all duration-500 border border-white/5 hover:border-white/10"
                             >
 
-                                <div className="relative aspect-[3/4] overflow-hidden bg-[#111] p-8">
+                                <div className="relative aspect-[3/4] overflow-hidden bg-[#111] p-6 md:p-8">
                                     <Link to={`/product/${product.id}`} className="block h-full w-full relative z-10">
                                         <img
                                             src={product.image.startsWith("/") ? `${BASE_URL}${product.image}` : product.image}
                                             alt={product.name}
-                                            className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-500"
+                                            className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transition-transform duration-500 group-hover:scale-110"
                                         />
                                     </Link>
 
@@ -210,38 +210,38 @@ function Product() {
                                         onClick={() => toggleWishlist(product.id)}
                                         className="absolute top-4 right-4 z-20 p-3 rounded-full bg-black/40 text-white hover:bg-white hover:text-red-600 transition-all duration-300"
                                     >
-                                        {isInWishlist ? <FaHeart /> : <FiHeart />}
+                                        {isInWishlist ? <FaHeart className="text-sm" /> : <FiHeart className="text-sm" />}
                                     </button>
                                 </div>
 
                                 {/* Minimalist Info */}
-                                <div className="p-6">
+                                <div className="p-5 md:p-6">
                                     <Link to={`/product/${product.id}`} className="block group-hover:text-cyan-400 transition-colors duration-300">
-                                        <h2 className="text-lg font-medium text-white tracking-wide truncate">
+                                        <h2 className="text-base md:text-lg font-medium text-white tracking-wide truncate">
                                             {product.name}
                                         </h2>
                                     </Link>
 
-                                    <div className="flex items-center justify-between mt-4">
-                                        <p className="text-xl text-gray-400 font-light">₹{product.price}</p>
+                                    <div className="flex items-center justify-between mt-3">
+                                        <p className="text-lg md:text-xl text-gray-400 font-light">₹{product.price}</p>
 
                                         {/* Dot Status */}
                                         <div className="flex items-center gap-2">
-                                            <span className={`w-2 h-2 rounded-full ${product.stoke > 0 ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-red-500'}`} />
-                                            <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-                                                {product.stoke > 0 ? `In Stock (${product.stoke} left)` : 'Sold Out'}
+                                            <span className={`w-1.5 h-1.5 rounded-full ${product.stoke > 0 ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-red-500'}`} />
+                                            <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+                                                {product.stoke > 0 ? `In Stock` : 'Sold Out'}
                                             </span>
                                         </div>
                                     </div>
 
-                                    {/* Quick Add Button underneath (Visible always or hover? Let's keep it visible for utility but sleek) */}
+                                    {/* Quick Add Button */}
                                     <button
                                         onClick={() => {
                                             if (isInCart) navigate("/cart");
                                             else if (product.stoke > 0) addToCart(product);
                                         }}
                                         disabled={product.stoke <= 0}
-                                        className={`mt-6 w-full py-4 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all duration-500 ${isInCart
+                                        className={`mt-5 w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${isInCart
                                             ? "bg-white text-black hover:bg-gray-200"
                                             : product.stoke <= 0
                                                 ? "bg-white/5 text-gray-600 cursor-not-allowed"

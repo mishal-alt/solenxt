@@ -22,23 +22,23 @@ const HeroSection = () => {
 
             {/* Content Container */}
             <div className="relative z-10 container mx-auto px-6 text-center">
-                <div className="inline-block px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-[0.3em] mb-8 animate-fade-in">
+                <div className="inline-block px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] mb-8 animate-fade-in">
                     The Next Evolution in Footwear
                 </div>
 
-                <h1 className="text-6xl md:text-9xl font-thin tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 mb-12 uppercase leading-none">
+                <h1 className="text-4xl md:text-9xl font-thin tracking-[0.1em] md:tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 mb-8 md:mb-12 uppercase leading-snug md:leading-none">
                     STEP INTO <br />
                     <span className="font-black tracking-normal text-white">THE FUTURE</span>
                 </h1>
 
-                <p className="max-w-xl mx-auto text-gray-400 text-lg md:text-xl font-light leading-relaxed tracking-wide mb-12 italic">
+                <p className="max-w-xl mx-auto text-gray-400 text-sm md:text-xl font-light leading-relaxed tracking-wide mb-10 md:mb-12 italic px-4">
                     "Curating the rarest soles for those who define what's coming next."
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                    <Link to='/product'>
-                        <button className="group relative px-12 py-5 bg-white text-black font-bold text-xs uppercase tracking-[0.3em] rounded-full overflow-hidden transition-all duration-500 hover:bg-cyan-500 hover:text-white">
-                            <span className="relative z-10 flex items-center gap-2">
+                    <Link to='/product' className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto group relative px-12 py-5 bg-white text-black font-bold text-xs uppercase tracking-[0.3em] rounded-full overflow-hidden transition-all duration-500 hover:bg-cyan-500 hover:text-white">
+                            <span className="relative z-10 flex items-center justify-center gap-2">
                                 Explore Collection
                                 <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                             </span>
@@ -47,7 +47,7 @@ const HeroSection = () => {
                 </div>
             </div>
 
-         
+
         </section>
     );
 };
