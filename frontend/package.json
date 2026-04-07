@@ -1,4 +1,12 @@
 {
+  "name": "frontend",
+  "private": true,
+  "scripts": {
+    "dev": "cd my-app && npm run dev",
+    "build": "cd my-app && npm run build",
+    "preview": "cd my-app && npm run preview",
+    "lint": "cd my-app && npm run lint"
+  },
   "dependencies": {
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
